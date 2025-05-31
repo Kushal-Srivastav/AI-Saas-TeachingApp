@@ -44,6 +44,7 @@ const CompanionCard = ({id, name, topic, subject, duration, color} :
 </button>
 </Link>
    </article>
+   
   )
 }
 
