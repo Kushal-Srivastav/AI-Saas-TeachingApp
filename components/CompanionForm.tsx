@@ -21,6 +21,9 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { subjects } from "@/constants"
+import { createCompanion } from "@/lib/actions/companion.actions"
+import { redirect } from "next/navigation"
+
 
 
 // 1. Fix: incorrect use of `minLength`. Use `.min(1)` directly.
@@ -48,8 +51,16 @@ const CompanionForm = () => {
   })
 
   // 3. Submit handler
-  const onSubmit = (values: z.infer<typeof formSchema>)=> {
-    console.log(values)
+  const onSubmit = async (values: z.infer<typeof formSchema>)=> {
+    
+      const companion = await createCompanion(values);
+      if (companion) {
+        redirect(`/companions/${companion.id}`);
+      }
+      else{
+        console.log('Failed to create a companion.')
+        redirect('/')
+      }
   }
 
   return (
