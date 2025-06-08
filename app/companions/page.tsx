@@ -1,74 +1,36 @@
-import CompanionCard from '@/components/CompanionCard';
-import SearchInput from '@/components/SearchInput';
-import SubjectFilter from '@/components/SubjectFilter';
-import { getAllCompanions } from '@/lib/actions/companion.actions';
-import { getSubjectColor } from '@/lib/utils';
-import React from 'react'
+import {getAllCompanions} from "@/lib/actions/companion.actions";
+import CompanionCard from "@/components/CompanionCard";
+import {getSubjectColor} from "@/lib/utils";
+import SearchInput from "@/components/SearchInput";
+import SubjectFilter from "@/components/SubjectFilter";
 
 const CompanionsLibrary = async ({ searchParams }: SearchParams) => {
-  try {
     const filters = await searchParams;
-    const subject = filters.subject ? filters.subject : ''
-    const topic = filters.topic ? filters.topic : ''
+    const subject = filters.subject ? filters.subject : '';
+    const topic = filters.topic ? filters.topic : '';
 
-    const companions = await getAllCompanions({ subject, topic })
-    console.log('Fetched companions:', companions)
+    const companions = await getAllCompanions({ subject, topic });
 
-    if (!companions || companions.length === 0) {
-      return (
+    return (
         <main>
-          <section className='flex justify-between gap-4 max-sm:flex-col'>
-            <h1>Companions Library</h1>
-            <div className='flex gap-4'>
-              <SearchInput />
-              <SubjectFilter />
-            </div>
-          </section>
-          <div className="text-center mt-8">
-            <p>No companions found. Try adjusting your filters or create a new companion.</p>
-          </div>
+            <section className="flex justify-between gap-4 max-sm:flex-col">
+                <h1>Companion Library</h1>
+                <div className="flex gap-4">
+                    <SearchInput />
+                    <SubjectFilter />
+                </div>
+            </section>
+            <section className="companions-grid">
+                {companions.map((companion) => (
+                    <CompanionCard
+                        key={companion.id}
+                        {...companion}
+                        color={getSubjectColor(companion.subject)}
+                    />
+                ))}
+            </section>
         </main>
-      )
-    }
-
-    return (
-      <main>
-        <section className='flex justify-between gap-4 max-sm:flex-col'>
-          <h1>Companions Library</h1>
-          <div className='flex gap-4'>
-            <SearchInput />
-            <SubjectFilter />
-          </div>
-        </section>
-
-        <section className='companions-grid'>
-          {companions.map((companion) => (
-            <CompanionCard 
-              key={companion.id} 
-              {...companion}
-              color={getSubjectColor(companion.subject)} 
-            />
-          ))}
-        </section>
-      </main>
     )
-  } catch (error) {
-    console.error('Error fetching companions:', error)
-    return (
-      <main>
-        <section className='flex justify-between gap-4 max-sm:flex-col'>
-          <h1>Companions Library</h1>
-          <div className='flex gap-4'>
-            <SearchInput />
-            <SubjectFilter />
-          </div>
-        </section>
-        <div className="text-center mt-8">
-          <p>Error loading companions. Please try again later.</p>
-        </div>
-      </main>
-    )
-  }
 }
 
 export default CompanionsLibrary
