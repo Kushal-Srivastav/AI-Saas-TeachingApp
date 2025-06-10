@@ -174,13 +174,26 @@ export const removeBookmark = async (companionId: string, path: string) => {
 // It's almost the same as getUserCompanions, but it's for the bookmarked companions
 export const getBookmarkedCompanions = async (userId: string) => {
   const supabase = createSupabaseClient();
-  const { data, error } = await supabase
+  const { data: bookmarks, error: bookmarksError } = await supabase
     .from("bookmarks")
-    .select(`companions:companion_id (*)`) // Notice the (*) to get all the companion data
+    .select("companion_id")
     .eq("user_id", userId);
-  if (error) {
-    throw new Error(error.message);
+    
+  if (bookmarksError) {
+    throw new Error(bookmarksError.message);
   }
-  // We don't need the bookmarks data, so we return only the companions
-  return data.map(({ companions }) => companions);
+
+  if (!bookmarks.length) return [];
+
+  const companionIds = bookmarks.map(b => b.companion_id);
+  const { data: companions, error: companionsError } = await supabase
+    .from("companions")
+    .select("*")
+    .in("id", companionIds);
+
+  if (companionsError) {
+    throw new Error(companionsError.message);
+  }
+
+  return companions;
 }; 

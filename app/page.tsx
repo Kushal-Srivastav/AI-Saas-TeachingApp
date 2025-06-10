@@ -3,13 +3,18 @@ import CompanionsList from '@/components/CompanionsList'
 import Cta from '@/components/CTA'
 import { Button } from '@/components/ui/button'
 import { recentSessions } from '@/constants'
-import { getAllCompanions, getRecentSessions } from '@/lib/actions/companion.actions'
+import { getAllCompanions, getRecentSessions, getBookmarkedCompanions } from '@/lib/actions/companion.actions'
 import { getSubjectColor } from '@/lib/utils'
+import { auth } from '@clerk/nextjs/server'
 import React from 'react'
 
 const Page = async () => {
+  const { userId } = await auth();
   const companions = await getAllCompanions({limit: 3})
   const recentSessionsCompanions = await getRecentSessions(10)
+  const bookmarkedCompanions = userId ? await getBookmarkedCompanions(userId) : [];
+  const bookmarkedIds = new Set(bookmarkedCompanions.map(c => c.id));
+
   return (
     <main>
       <h1>
@@ -22,6 +27,7 @@ const Page = async () => {
                key={companion.id}
               {...companion}
               color = {getSubjectColor(companion.subject)}
+              bookmarked={bookmarkedIds.has(companion.id)}
         />
       ))}
       
